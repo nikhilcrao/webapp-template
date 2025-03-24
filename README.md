@@ -1,2 +1,3 @@
-# webapp-template
-Webapp template using golang, React and Firestore
+# Webapp Template
+
+Webapp template using golang, React and Firestore.
