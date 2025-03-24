@@ -1,15 +1,14 @@
-// Import styles of packages that you've installed.
-// All packages except `@mantine/hooks` require styles imports
 import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
+import '@mantine/charts/styles.css';
 
-import { MantineProvider, AppShell, Burger } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { AppShell, Burger, Stack, Loader, MantineProvider, Flex } from '@mantine/core';
+import { HeaderMenu } from './components/HeaderMenu/HeaderMenu';
+
 
 export default function App() {
-  const [opened, { toggle }] = useDisclosure();
-
   return (
-    <MantineProvider>
+    <MantineProvider defaultColorScheme="auto">
       <AppShell
         header={{ height: 60 }}
         navbar={{ width: 300, breakpoint: "sm", collapsed: { mobile: !opened } }}
@@ -18,13 +17,17 @@ export default function App() {
         transitionTimingFunction="ease"
       >
         <AppShell.Header>
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm"></Burger>
-          <div>Logo</div>
+          <HeaderMenu />
         </AppShell.Header>
 
         <AppShell.Navbar p="md">Navbar</AppShell.Navbar>
 
-        <AppShell.Main>Main</AppShell.Main>
+        <AppShell.Main>
+          <Stack>
+            <div>Main</div>
+            <Loader color="blue" />
+          </Stack>
+        </AppShell.Main>
       </AppShell>
     </MantineProvider>
   );
