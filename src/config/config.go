@@ -5,17 +5,22 @@ import (
 )
 
 type Config struct {
-	Addr string `json:"addr,omitempty"`
-	Port string `json:"port,omitempty"`
+	Addr string `json:"addr"`
+	Port string `json:"port"`
 
-	DatabasePath string `json:"database_path,omitempty"`
+	DatabasePath string `json:"database_path"`
+
+	OAuthCallbackURL   string `json:"oauth_callback_domain"`
+	GoogleClientID     string `json:"google_client_id"`
+	GoogleClientSecret string `json:"google_client_secret"`
 }
 
 func LoadConfig() Config {
 	return Config{
-		Port:         getEnv("SERVER_PORT", "8080"),
-		Addr:         getEnv("SERVER_ADDR", ""),
-		DatabasePath: getEnv("DATABASE_PATH", "postgres://localhost:5432/postgres"),
+		Port:             getEnv("SERVER_PORT", "8080"),
+		Addr:             getEnv("SERVER_ADDR", ""),
+		DatabasePath:     getEnv("DATABASE_PATH", "postgres://localhost:5432/postgres"),
+		OAuthCallbackURL: getEnv("OAUTH_CALLBACK_DOMAIN", "http://localhost:8080/api/auth/google/callback"),
 	}
 }
 

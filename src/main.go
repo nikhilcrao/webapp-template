@@ -5,16 +5,14 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 	"webapp/config"
 	"webapp/server"
-	"webapp/server/db"
+	"webapp/server/database"
 
 	"github.com/gin-gonic/contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 	"github.com/joho/godotenv"
-	ginglog "github.com/szuecs/gin-glog"
 )
 
 func main() {
@@ -27,13 +25,14 @@ func main() {
 
 	cfg := config.LoadConfig()
 
-	err = db.Init(cfg.DatabasePath)
+	err = database.Init()
 	if err != nil {
 		glog.Fatal(err)
 	}
 
 	router := gin.New()
-	router.Use(ginglog.Logger(3 * time.Second))
+	router.Use(gin.Logger())
+	// 	router.Use(ginglog.Logger(3 * time.Second))
 	router.Use(gin.Recovery())
 	router.SetTrustedProxies(nil)
 
