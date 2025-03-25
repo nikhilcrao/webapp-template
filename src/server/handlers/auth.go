@@ -122,8 +122,8 @@ func GoogleCallback(ctx *gin.Context) {
 				return
 			}
 		} else {
-			glog.Error(err)
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			glog.Error(result.Error)
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 			return
 		}
 	} else {
