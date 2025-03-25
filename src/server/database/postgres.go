@@ -1,7 +1,7 @@
 package database
 
 import (
-	"webapp/config"
+	"webapp/server/config"
 	"webapp/server/models"
 
 	"github.com/golang/glog"

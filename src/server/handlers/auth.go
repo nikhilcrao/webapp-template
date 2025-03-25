@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"webapp/config"
+	"webapp/server/config"
 	"webapp/server/database"
 	"webapp/server/models"
 	"webapp/server/utils"

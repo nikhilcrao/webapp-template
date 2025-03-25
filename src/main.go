@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"webapp/config"
 	"webapp/server"
+	"webapp/server/config"
 	"webapp/server/database"
 
 	"github.com/gin-gonic/contrib/cors"
@@ -32,7 +32,6 @@ func main() {
 
 	router := gin.New()
 	router.Use(gin.Logger())
-	// 	router.Use(ginglog.Logger(3 * time.Second))
 	router.Use(gin.Recovery())
 	router.SetTrustedProxies(nil)
 
