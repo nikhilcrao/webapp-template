@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"webapp/server/config"
 	"webapp/server/database"
 	"webapp/server/models"
@@ -259,4 +260,37 @@ func Login(ctx *gin.Context) {
 	}
 
 	sendToken(ctx, user)
+}
+
+func GetProfile(ctx *gin.Context) {
+	userIDStr, exists := ctx.Get("userID")
+	if !exists {
+		err := errors.New("user not authenticated")
+		glog.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, err := strconv.ParseUint(fmt.Sprintf("%v", userIDStr), 10, 32)
+	if err != nil {
+		glog.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	var user models.User
+	db := database.GetDB()
+	result := db.First(&user, userID)
+
+	if result.Error != nil {
+		glog.Error(result.Error)
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		}
+		return
+	}
+
+	ctx.JSON(http.StatusOK, user)
 }

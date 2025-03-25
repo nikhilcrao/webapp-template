@@ -157,8 +157,6 @@ func handleDelete[T any](ctx *gin.Context) {
 func handleDeleteAll[T any](ctx *gin.Context) {
 	var object T
 
-	glog.Error("test")
-
 	db := database.GetDB()
 	result := db.Where("1 = 1").Delete(&object)
 	if result.Error != nil {

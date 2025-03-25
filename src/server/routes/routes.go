@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"net/http"
 	"webapp/server/handlers"
 	"webapp/server/middlewares"
 	"webapp/server/models"
@@ -20,6 +19,8 @@ func RegisterRoutes(router *gin.Engine) {
 
 		auth.GET("/google", handlers.GoogleLogin)
 		auth.GET("/google/callback", handlers.GoogleCallback)
+
+		auth.GET("/profile", handlers.GetProfile)
 	}
 
 	admin := api.Group("/admin")
@@ -36,14 +37,7 @@ func RegisterRoutes(router *gin.Engine) {
 	protected := api.Group("/")
 	protected.Use(middlewares.AuthMiddleware())
 	{
-		handlers.RegisterCRUDHandlers[models.User](
-			handlers.HandlerConfig{
-				BasePath:      "/users",
-				RouterGroup:   protected,
-				CreateFunc:    func(ctx *gin.Context) { ctx.JSON(http.StatusNotImplemented, gin.H{}) },
-				DeleteAllFunc: func(ctx *gin.Context) { ctx.JSON(http.StatusNotImplemented, gin.H{}) },
-			},
-		)
+
 	}
 
 	// TODO: Protected
