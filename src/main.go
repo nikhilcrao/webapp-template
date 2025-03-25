@@ -1,19 +1,25 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 	"webapp/config"
 	"webapp/server"
+	"webapp/server/db"
 
 	"github.com/gin-gonic/contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 	"github.com/joho/godotenv"
+	ginglog "github.com/szuecs/gin-glog"
 )
 
 func main() {
+	flag.Parse()
+
 	err := godotenv.Load()
 	if err != nil {
 		glog.Warning(".env not found")
@@ -21,8 +27,13 @@ func main() {
 
 	cfg := config.LoadConfig()
 
+	err = db.Init(cfg.DatabasePath)
+	if err != nil {
+		glog.Fatal(err)
+	}
+
 	router := gin.New()
-	router.Use(gin.Logger())
+	router.Use(ginglog.Logger(3 * time.Second))
 	router.Use(gin.Recovery())
 	router.SetTrustedProxies(nil)
 
@@ -47,7 +58,7 @@ func main() {
 
 	server, err := server.NewServer(router)
 	if err != nil {
-		panic(err)
+		glog.Fatal(err)
 	}
 
 	server.Run(fmt.Sprintf("%s:%s", cfg.Addr, cfg.Port))
