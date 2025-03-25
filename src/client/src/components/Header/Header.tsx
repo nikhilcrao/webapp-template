@@ -1,9 +1,8 @@
 
-import { useDisclosure } from '@mantine/hooks';
 import { IconChevronDown } from '@tabler/icons-react';
 import { Burger, Center, Container, Group, Menu } from '@mantine/core';
-import { Logo } from '../Logo/Logo';
-import classes from './HeaderMenu.module.css';
+import { Brand } from '../Brand/Brand';
+import classes from './Header.module.css';
 
 const links = [
   { link: '/about', label: 'Features' },
@@ -30,9 +29,12 @@ const links = [
   },
 ];
 
-export function HeaderMenu() {
-  const [opened, { toggle }] = useDisclosure(false);
+interface HeaderProps {
+  opened: boolean;
+  onMenuOpen: () => void;
+}
 
+export function Header({ opened, onMenuOpen }: HeaderProps) {
   const items = links.map((link) => {
     const menuItems = link.links?.map((item) => (
       <Menu.Item key={item.link}>{item.label}</Menu.Item>
@@ -74,11 +76,11 @@ export function HeaderMenu() {
     <header className={classes.header}>
       <Container size="md">
         <div className={classes.inner}>
-          <Logo />
+          <Brand brandName="Webapp Template" />
           <Group gap={5} visibleFrom="sm">
             {items}
           </Group>
-          <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom="sm" />
+          <Burger opened={opened} onClick={onMenuOpen} size="sm" hiddenFrom="sm" />
         </div>
       </Container>
     </header>

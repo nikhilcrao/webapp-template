@@ -2,32 +2,63 @@ import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/charts/styles.css';
 
-import { AppShell, Burger, Stack, Loader, MantineProvider, Flex } from '@mantine/core';
-import { HeaderMenu } from './components/HeaderMenu/HeaderMenu';
+import { Anchor, AppShell, MantineProvider, Flex, Breadcrumbs } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+
+import { Header } from './components/Header/Header';
+import { Navbar } from './components/Navbar/Navbar';
+import { Footer } from './components/Footer/Footer';
+import { TableSort } from './components/TableSort/TableSort';
+import { StatsGrid } from './components/StatsGrid/StatsGrid';
 
 
 export default function App() {
+  const [opened, { toggle }] = useDisclosure();
+  
+  const items = [
+    { title: 'Mantine', href: '#' },
+    { title: 'Mantine hooks', href: '#' },
+    { title: 'use-id', href: '#' },
+  ].map((item, index) => (
+    <Anchor href={item.href} key={index}>
+      {item.title}
+    </Anchor>
+  ));
+
   return (
     <MantineProvider defaultColorScheme="auto">
       <AppShell
         header={{ height: 60 }}
-        navbar={{ width: 300, breakpoint: "sm", collapsed: { mobile: !opened } }}
+        navbar={{
+          width: 300,
+          breakpoint: "sm",
+          collapsed: { mobile: !opened }, 
+        }}
         padding="md"
-        transitionDuration={500}
-        transitionTimingFunction="ease"
       >
         <AppShell.Header>
-          <HeaderMenu />
+          <Header
+            opened={opened}
+            onMenuOpen={toggle}
+          />
         </AppShell.Header>
 
-        <AppShell.Navbar p="md">Navbar</AppShell.Navbar>
+        <AppShell.Navbar>
+          <Navbar />
+        </AppShell.Navbar>
 
         <AppShell.Main>
-          <Stack>
-            <div>Main</div>
-            <Loader color="blue" />
-          </Stack>
+          <Flex direction="column">
+            <Breadcrumbs>{ items }</Breadcrumbs>
+            <StatsGrid />
+            <TableSort />
+          </Flex>
         </AppShell.Main>
+
+        <AppShell.Footer>
+          <Footer />
+        </AppShell.Footer>
+
       </AppShell>
     </MantineProvider>
   );
