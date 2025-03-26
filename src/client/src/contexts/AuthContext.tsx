@@ -14,8 +14,8 @@ interface AuthState {
     isAuthenticated: boolean,
     isLoading: boolean,
     authError: string,
-    loginWithEmail: (email: string, password: string) => Promise<boolean>,
     register: (name: string, email: string, password: string, confirmPassword: string) => Promise<boolean>,
+    loginWithEmail: (email: string, password: string) => Promise<boolean>,
     loginWithGoogle: () => Promise<boolean>,
     handleGoogleCallback: (code: any) => Promise<boolean>,
     logout: () => Promise<void>,
@@ -26,20 +26,18 @@ const AuthContext = createContext<AuthState | null>(null);
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: any) => {
-    const [user, setUser] = useState(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [userData, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [authError, setAuthError] = useState("");
+    let isAuthenticated: boolean = userData != null;
 
     const setLogin = async (userData: any) => {
         setUser(userData);
-        setIsAuthenticated(true);
         setAuthError("");
     };
 
     const clearLogin = async (err: string) => {
         setUser(null);
-        setIsAuthenticated(false);
         setAuthError(err);
     };
 
@@ -148,12 +146,12 @@ export const AuthProvider = ({ children }: any) => {
     };
 
     let authState: AuthState = {
-        userData: user,
+        userData: userData,
         isAuthenticated: isAuthenticated,
         isLoading: isLoading,
         authError: authError,
-        loginWithEmail: loginWithEmail,
         register: register,
+        loginWithEmail: loginWithEmail,
         loginWithGoogle: startGoogleLogin,
         handleGoogleCallback: processGoogleCallback,
         logout: logout,
