@@ -14,10 +14,10 @@ interface AuthState {
     isAuthenticated: boolean,
     isLoading: boolean,
     authError: string,
-    register: (name: string, email: string, password: string, confirmPassword: string) => Promise<boolean>,
+    registerUser: (name: string, email: string, password: string, confirmPassword: string) => Promise<boolean>,
     loginWithEmail: (email: string, password: string) => Promise<boolean>,
     loginWithGoogle: () => Promise<boolean>,
-    handleGoogleCallback: (code: any) => Promise<boolean>,
+    processGoogleCallback: (code: any) => Promise<boolean>,
     logout: () => Promise<void>,
 }
 
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: any) => {
     const [userData, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [authError, setAuthError] = useState("");
-    let isAuthenticated: boolean = userData != null;
+    const isAuthenticated = userData != null;
 
     const setLogin = async (userData: any) => {
         setUser(userData);
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }: any) => {
         }
     }, [isAuthenticated]);
 
-      const logout = async () => {
+    const logout = async () => {
         try {
             await apiLogout();
         } catch (error) {
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }: any) => {
         } finally {
             clearLogin("");
         }
-      };
+    };
 
     const startGoogleLogin = async () => {
         try {
@@ -150,16 +150,16 @@ export const AuthProvider = ({ children }: any) => {
         isAuthenticated: isAuthenticated,
         isLoading: isLoading,
         authError: authError,
-        register: register,
+        registerUser: register,
         loginWithEmail: loginWithEmail,
         loginWithGoogle: startGoogleLogin,
-        handleGoogleCallback: processGoogleCallback,
+        processGoogleCallback: processGoogleCallback,
         logout: logout,
     };
 
     return (
         <AuthContext.Provider value={authState}>
-            { children }
+            {children}
         </AuthContext.Provider>
     );
 }

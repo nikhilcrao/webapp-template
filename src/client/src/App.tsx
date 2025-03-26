@@ -27,7 +27,7 @@ const ProtectedRoute = ({ children }: { children: any }) => {
     );
   }
 
-  if (authState?.isAuthenticated || true) {
+  if (authState?.isAuthenticated) {
     return children;
   }
 

@@ -15,7 +15,7 @@ export async function loginWithEmailPassword(email, password) {
 
 export async function registerUser(userData) {
     try {
-        const response = await api.get("/auth/register", userData);
+        const response = await api.post("/auth/register", userData);
         if (response.data.token) {
             localStorage.setItem("token", response.data.token);
         }

@@ -23,7 +23,7 @@ import (
 type GoogleUserInfo struct {
 	ID            string `json:"id"`
 	Email         string `json:"email"`
-	VerifiedEmail string `json:"verified_email"`
+	VerifiedEmail bool   `json:"verified_email"`
 	Name          string `json:"name"`
 	Picture       string `json:"picture"`
 }
@@ -114,10 +114,12 @@ func GoogleCallback(ctx *gin.Context) {
 	user.Name = userInfo.Name
 	user.Email = userInfo.Email
 
+	glog.Info(user)
+
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			// Create new user
-			if err := db.Create(user).Error; err != nil {
+			if err := db.Create(&user).Error; err != nil {
 				glog.Error(err)
 				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
