@@ -1,67 +1,65 @@
 import {
-    IconAdjustments,
-    IconCalendarStats,
-    IconFileAnalytics,
-    IconGauge,
-    IconLock,
-    IconNotes,
-    IconPresentationAnalytics,
-    IconLogout,
-  } from '@tabler/icons-react';
-  import { ScrollArea } from '@mantine/core';
-  import { LinksGroup } from '../NavbarLinksGroup/NavbarLinksGroup';
-  import classes from './Navbar.module.css';
-  
-  const data = [
-    { label: 'Dashboard', icon: IconGauge },
+  IconAdjustments,
+  IconGauge,
+  IconNotes,
+  IconPresentationAnalytics,
+} from '@tabler/icons-react';
+
+import { IconLogout } from '@tabler/icons-react';
+import { ScrollArea } from '@mantine/core';
+import { LinksGroup, LinksGroupProps } from './LinksGroup';
+import classes from './Navbar.module.css';
+
+export const navItems = {
+  items: [
     {
-      label: 'Market news',
+      label: "Dashboard",
+      icon: IconGauge,
+      link: "/",
+    },
+    {
+      label: "Forecasts",
       icon: IconNotes,
-      links: [
-        { label: 'Overview', link: '/' },
-        { label: 'Forecasts', link: '/' },
-        { label: 'Outlook', link: '/' },
-        { label: 'Real time', link: '/' },
+      link: "/forecasts",
+      linksGroup: [
+        { label: "Overview", link: "/forecasts/overview" },
+        { label: "Forecasts", link: "/forecasts/forecasts" },
+        { label: "Outlook", link: "/forecasts/outlook" },
+        { label: "Real time", link: "/forecasts/real-time" },
       ],
     },
     {
-      label: 'Releases',
-      icon: IconCalendarStats,
-      links: [
-        { label: 'Upcoming releases', link: '/' },
-        { label: 'Previous releases', link: '/' },
-        { label: 'Releases schedule', link: '/' },
+      label: "Analytics",
+      icon: IconPresentationAnalytics,
+      link: "/analytics",
+      linksGroup: [
+        { label: "Reports", link: "/analytics/reports" },
       ],
     },
-    { label: 'Analytics', icon: IconPresentationAnalytics },
-    { label: 'Contracts', icon: IconFileAnalytics },
-    { label: 'Settings', icon: IconAdjustments },
     {
-      label: 'Security',
-      icon: IconLock,
-      links: [
-        { label: 'Enable 2FA', link: '/' },
-        { label: 'Change password', link: '/' },
-        { label: 'Recovery codes', link: '/' },
-      ],
+      label: "Settings",
+      icon: IconAdjustments,
+      link: "/settings",
     },
-  ];
-  
-  export function Navbar() {
-    const links = data.map((item) => <LinksGroup {...item} key={item.label} />);
-  
-    return (
-      <nav className={classes.navbar}>
-        <ScrollArea className={classes.links}>
-          <div className={classes.linksInner}>{links}</div>
-        </ScrollArea>
-  
-        <div className={classes.footer}>
-            <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
-                <IconLogout className={classes.linkIcon} stroke={1.5} />
-                <span>Logout</span>
-            </a>
-        </div>
-      </nav>
-    );
-  }
+  ]
+};
+
+export function Navbar() {
+  const links = navItems.items.map((item) => <LinksGroup {...item} key={item.label} />);
+
+  return (
+    <nav className={classes.navbar}>
+      <ScrollArea className={classes.links}>
+        <div className={classes.linksInner}>{links}</div>
+      </ScrollArea>
+
+      <div className={classes.footer}>
+        {/* TODO: handle logout */}
+        <a href="/logout" className={classes.link} onClick={(event) => event.preventDefault()}>
+          <IconLogout className={classes.linkIcon} stroke={1.5} />
+          <span>Logout</span>
+        </a>
+      </div>
+    </nav>
+  );
+}

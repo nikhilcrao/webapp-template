@@ -17,9 +17,11 @@
     "@mantine/hooks": "^7.17.2",
     "@mantine/modals": "^7.17.2",
     "@tabler/icons-react": "^3.31.0",
+    "axios": "^1.8.4",
     "dayjs": "^1.11.13",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^7.4.0",
     "recharts": "^2.15.1"
   },
   "devDependencies": {

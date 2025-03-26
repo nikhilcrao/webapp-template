@@ -5,9 +5,9 @@ const api = axios.create({
     headers: {
         "Content-Type": "application/json",
     },
-})
+});
 
-api.inteceptors.request.use(
+api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("authToken");
         if (token) {
@@ -20,7 +20,7 @@ api.inteceptors.request.use(
     },
 );
 
-api.inteceptors.response.use(
+api.interceptors.response.use(
     (response) => {
         return response;
     },
