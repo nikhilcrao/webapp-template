@@ -9,6 +9,7 @@ import { IconLogout } from '@tabler/icons-react';
 import { ScrollArea } from '@mantine/core';
 import { LinksGroup } from './LinksGroup';
 import classes from './Navbar.module.css';
+import { Link } from 'react-router-dom';
 
 export const navItems = {
   items: [
@@ -55,10 +56,10 @@ export function Navbar() {
 
       <div className={classes.footer}>
         {/* TODO: handle logout */}
-        <a href="/logout" className={classes.link} onClick={(event) => event.preventDefault()}>
+        <Link to="/logout" className={classes.link}>
           <IconLogout className={classes.linkIcon} stroke={1.5} />
           <span>Logout</span>
-        </a>
+        </Link>
       </div>
     </nav>
   );

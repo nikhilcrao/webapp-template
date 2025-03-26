@@ -3,7 +3,6 @@ import { Illustration } from './Illustration';
 import { Link } from 'react-router-dom';
 import classes from './PageNotFound.module.css';
 
-
 export function PageNotFound() {
   return (
     <Container className={classes.root}>
@@ -17,7 +16,7 @@ export function PageNotFound() {
           </Text>
           <Group justify="center">
             <Link to="/login">
-                <Button size="md">Take me back to home page</Button>
+              <Button size="md">Take me back to home page</Button>
             </Link>
           </Group>
         </div>

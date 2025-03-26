@@ -6,13 +6,35 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Navigate,
 } from 'react-router-dom';
-import { MantineProvider } from '@mantine/core';
-//import { AppLayout } from "./components/Layout/AppLayout";
+import { Loader, MantineProvider } from '@mantine/core';
 import { AuthProvider } from './contexts/AuthContext';
-{/* import { LoginPage } from './components/Auth/LoginPage'; */}
-import { AppLayout } from './components/Layout/AppLayout';
 import { PageNotFound } from './components/PageNotFound/PageNotFound';
+import { LoginPage } from './components/LoginPage/LoginPage';
+import { AppLayout } from './components/Layout/AppLayout';
+import { useAuth } from './contexts/AuthContext';
+import { DashboardPage } from './components/DashboardPage/DashboardPage';
+import { ProfilePage } from './components/ProfilePage/ProfilePage';
+import { LogoutPage } from './components/LogoutPage/LogoutPage';
+
+const ProtectedRoute = ({ children }: { children: any }) => {
+  const authState = useAuth();
+
+  if (authState?.isLoading) {
+    return (
+      <Loader />
+    );
+  }
+
+  if (authState?.isAuthenticated || true) {
+    return children;
+  }
+
+  return (
+    <Navigate to="/login" />
+  );
+}
 
 export default function App() {
   return (
@@ -20,12 +42,28 @@ export default function App() {
       <AuthProvider>
         <Router>
           <Routes>
-            <Route path="/login" element={ <AppLayout /> } />
-            <Route path="*" element={ <PageNotFound /> } />
+            {/* Auth Routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/logout" element={<LogoutPage />} />
+
+            {/* App Layout Wrapper */}
+            <Route element={<AppLayout />}>
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>} />
+
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>} />
+            </Route>
+
+            {/* Fallback */}
+            <Route path="*" element={<PageNotFound />} />
           </Routes>
         </Router>
-        {/* <AppLayout /> */}
       </AuthProvider>
-    </MantineProvider>
+    </MantineProvider >
   );
 }
