@@ -7,7 +7,7 @@ import {
 
 import { IconLogout } from '@tabler/icons-react';
 import { ScrollArea } from '@mantine/core';
-import { LinksGroup, LinksGroupProps } from './LinksGroup';
+import { LinksGroup } from './LinksGroup';
 import classes from './Navbar.module.css';
 
 export const navItems = {

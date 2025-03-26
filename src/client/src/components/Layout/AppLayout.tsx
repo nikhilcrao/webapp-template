@@ -12,7 +12,7 @@ export function AppLayout() {
       header={{ height: 60 }}
       navbar={{
         width: 300,
-        breakpoint: "sm",
+        breakpoint: "md",
         collapsed: { mobile: !opened },
       }}
       padding="md"

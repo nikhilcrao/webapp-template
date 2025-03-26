@@ -6,9 +6,9 @@ export function Brand({ brandName: brand }: { brandName: string }) {
         <Group>
             <IconWallet />
             <span style={{ fontVariant: 'small-caps' }}>
-                <strong>{ brand }</strong>
+                <strong>{brand}</strong>
             </span>
-        </Group>
+        </Group >
 
     );
 }
