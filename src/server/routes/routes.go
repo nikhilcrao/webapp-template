@@ -19,8 +19,6 @@ func RegisterRoutes(router *gin.Engine) {
 
 		auth.GET("/google", handlers.GoogleLogin)
 		auth.GET("/google/callback", handlers.GoogleCallback)
-
-		auth.GET("/profile", handlers.GetProfile)
 	}
 
 	admin := api.Group("/admin")
@@ -33,6 +31,8 @@ func RegisterRoutes(router *gin.Engine) {
 			},
 		)
 	}
+
+	api.GET("/profile", handlers.GetProfile)
 
 	protected := api.Group("/")
 	protected.Use(middlewares.AuthMiddleware())

@@ -39,6 +39,11 @@ export async function loginWithGoogle() {
 export async function handleGoogleCallback(code) {
     try {
         const response = await api.get(`/auth/google/callback?code=${code}`);
+
+        if (response.data && response.data.token) {
+            localStorage.setItem("authToken");
+        }
+
         return response.data;
     } catch (error) {
         console.error(error);

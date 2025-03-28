@@ -21,13 +21,19 @@ import { LogoutPage } from './components/LogoutPage/LogoutPage';
 const ProtectedRoute = ({ children }: { children: any }) => {
   const authState = useAuth();
 
+  console.log("protected");
+
   if (authState?.isLoading) {
+    console.log("loading");
     return (
       <Loader />
     );
   }
 
+  console.log("authState", authState);
+
   if (authState?.isAuthenticated) {
+    console.log("authenticated");
     return children;
   }
 
