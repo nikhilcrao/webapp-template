@@ -104,9 +104,9 @@ export const AuthProvider = ({ children }: any) => {
         }
     };
 
-    const processGoogleCallback = async (code: any) => {
+    const processGoogleCallback = async (token: any) => {
         try {
-            const userData = await handleGoogleCallback(code);
+            const userData = await handleGoogleCallback(token);
             setLogin(userData);
             return true;
         } catch (error) {

@@ -30,16 +30,17 @@ type GoogleUserInfo struct {
 
 func googleOAuthConfig() *oauth2.Config {
 	cfg := config.LoadConfig()
-	callbackURL := cfg.OAuthCallbackURL
+	//	callbackURL := cfg.OAuthCallbackURL
 	return &oauth2.Config{
 		ClientID:     cfg.GoogleClientID,
 		ClientSecret: cfg.GoogleClientSecret,
-		RedirectURL:  callbackURL,
-		Scopes: []string{
-			"https://www.googleapis.com/auth/userinfo.email",
-			"https://www.googleapis.com/auth/userinfo.profile",
-		},
-		Endpoint: google.Endpoint,
+		//		RedirectURL:  callbackURL,
+		//		Scopes: []string{
+		//			"https://www.googleapis.com/auth/userinfo.email",
+		//			"https://www.googleapis.com/auth/userinfo.profile",
+		//		},
+		Endpoint:    google.Endpoint,
+		RedirectURL: "postmessage",
 	}
 }
 

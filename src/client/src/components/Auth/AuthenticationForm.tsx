@@ -13,11 +13,11 @@ import {
 } from '@mantine/core';
 import { useForm } from "@mantine/form";
 import { upperFirst, useToggle } from "@mantine/hooks";
-import { GoogleButton } from "./GoogleButton";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleButton } from "./GoogleButton";
+
 
 export function AuthenticationForm(props: PaperProps) {
   const navigate = useNavigate();
@@ -38,13 +38,16 @@ export function AuthenticationForm(props: PaperProps) {
     },
   });
 
+  /*
   const queryParams = new URLSearchParams(location.search);
   const code = queryParams.get("code");
+  */
 
-  if (authState?.isAuthenticated && !authState?.isLoading && !code) {
+  if (authState?.isAuthenticated && !authState?.isLoading) {
     navigate("/");
   }
 
+  /*
   useEffect(() => {
     if (code) {
       const processCallback = async () => {
@@ -61,6 +64,8 @@ export function AuthenticationForm(props: PaperProps) {
       processCallback();
     }
   }, [code, authState?.processGoogleCallback, navigate]);
+  */
+
 
   const handleFormSubmit = async (data: any) => {
     try {
@@ -84,13 +89,23 @@ export function AuthenticationForm(props: PaperProps) {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  /*
+  const handleGoogleLoginOld = async () => {
     try {
       await authState?.loginWithGoogle();
     } catch (error) {
       console.error(error);
     }
   }
+    */
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: codeResponse => {
+      authState?.processGoogleCallback(codeResponse.code);
+    },
+    flow: 'auth-code',
+    ux_mode: 'popup',
+  });
 
   return (
     <Paper radius="md" p="xl" withBorder {...props}>
@@ -99,7 +114,7 @@ export function AuthenticationForm(props: PaperProps) {
       </Text>
 
       <Group grow mb="md" mt="md">
-        <GoogleButton radius="xl" onClick={handleGoogleLogin}>Google</GoogleButton>
+        <GoogleButton radius="xl" onClick={() => googleLogin()}>Google</GoogleButton>
       </Group>
 
       <Divider label="Or continue with email" labelPosition="center" my="lg" />

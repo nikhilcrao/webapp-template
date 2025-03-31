@@ -41,7 +41,7 @@ export async function handleGoogleCallback(code) {
         const response = await api.get(`/auth/google/callback?code=${code}`);
 
         if (response.data && response.data.token) {
-            localStorage.setItem("token");
+            localStorage.setItem("token", response.data.token);
         }
 
         return response.data;
