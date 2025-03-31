@@ -17,10 +17,11 @@ type Config struct {
 
 func LoadConfig() Config {
 	return Config{
-		Port:               getEnv("SERVER_PORT", "8080"),
-		Addr:               getEnv("SERVER_ADDR", ""),
-		DatabasePath:       getEnv("DATABASE_PATH", "postgres://localhost:5432/postgres"),
-		OAuthCallbackURL:   getEnv("OAUTH_CALLBACK_DOMAIN", "http://localhost:8080/api/auth/google/callback"),
+		Port:             getEnv("SERVER_PORT", "8080"),
+		Addr:             getEnv("SERVER_ADDR", ""),
+		DatabasePath:     getEnv("DATABASE_PATH", "postgres://localhost:5432/postgres"),
+		OAuthCallbackURL: getEnv("OAUTH_CALLBACK_DOMAIN", "http://localhost:8080/login"),
+		//		OAuthCallbackURL:   getEnv("OAUTH_CALLBACK_DOMAIN", "http://localhost:8080/api/auth/google/callback"),
 		GoogleClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
 		GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
 	}

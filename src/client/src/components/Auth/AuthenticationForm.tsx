@@ -11,12 +11,13 @@ import {
   Text,
   TextInput,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { upperFirst, useToggle } from '@mantine/hooks';
-import { GoogleButton } from './GoogleButton';
-import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useForm } from "@mantine/form";
+import { upperFirst, useToggle } from "@mantine/hooks";
+import { GoogleButton } from "./GoogleButton";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import { useGoogleLogin } from '@react-oauth/google';
 
 export function AuthenticationForm(props: PaperProps) {
   const navigate = useNavigate();

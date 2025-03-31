@@ -28,22 +28,6 @@ type GoogleUserInfo struct {
 	Picture       string `json:"picture"`
 }
 
-func sendToken(ctx *gin.Context, user models.User) {
-	jwtToken, err := utils.GenerateJWT(user.ID, user.Email)
-	if err != nil {
-		glog.Error(err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"token":   jwtToken,
-		"user_id": fmt.Sprintf("%d", user.ID),
-		"name":    user.Name,
-		"email":   user.Email,
-	})
-}
-
 func googleOAuthConfig() *oauth2.Config {
 	cfg := config.LoadConfig()
 	callbackURL := cfg.OAuthCallbackURL
@@ -114,8 +98,6 @@ func GoogleCallback(ctx *gin.Context) {
 	user.Name = userInfo.Name
 	user.Email = userInfo.Email
 
-	glog.Info(user)
-
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			// Create new user
@@ -138,11 +120,22 @@ func GoogleCallback(ctx *gin.Context) {
 		}
 	}
 
-	sendToken(ctx, user)
+	jwtToken, err := utils.GenerateJWT(user.ID, user.Email)
+	if err != nil {
+		glog.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"token":   jwtToken,
+		"user_id": fmt.Sprintf("%d", user.ID),
+		"name":    user.Name,
+		"email":   user.Email,
+	})
 }
 
 func shouldRegister(result *gorm.DB) (bool, int) {
-	glog.Infof("err=%v rowsAff=%d", result.Error, result.RowsAffected)
 	if result.Error == nil {
 		if result.RowsAffected == 0 {
 			return true, http.StatusNotFound
@@ -176,6 +169,7 @@ func shouldLogin(result *gorm.DB) (bool, int) {
 
 func Register(ctx *gin.Context) {
 	var registerRequest models.RegisterRequest
+
 	if err := ctx.BindJSON(&registerRequest); err != nil {
 		glog.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -226,11 +220,24 @@ func Register(ctx *gin.Context) {
 		return
 	}
 
-	sendToken(ctx, user)
+	jwtToken, err := utils.GenerateJWT(user.ID, user.Email)
+	if err != nil {
+		glog.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"token":   jwtToken,
+		"user_id": fmt.Sprintf("%d", user.ID),
+		"name":    user.Name,
+		"email":   user.Email,
+	})
 }
 
 func Login(ctx *gin.Context) {
 	var loginRequest models.LoginRequest
+
 	if err := ctx.BindJSON(&loginRequest); err != nil {
 		glog.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -261,7 +268,19 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	sendToken(ctx, user)
+	jwtToken, err := utils.GenerateJWT(user.ID, user.Email)
+	if err != nil {
+		glog.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"token":   jwtToken,
+		"user_id": fmt.Sprintf("%d", user.ID),
+		"name":    user.Name,
+		"email":   user.Email,
+	})
 }
 
 func GetProfile(ctx *gin.Context) {

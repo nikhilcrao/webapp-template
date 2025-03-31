@@ -21,8 +21,15 @@ func RegisterRoutes(router *gin.Engine) {
 		auth.GET("/google/callback", handlers.GoogleCallback)
 	}
 
+	protected := api.Group("/")
+	protected.Use(middlewares.AuthMiddleware())
+	{
+		protected.GET("/profile", handlers.GetProfile)
+	}
+
 	admin := api.Group("/admin")
-	admin.Use(middlewares.AuthMiddleware())
+	// Disabled for testing
+	// admin.Use(middlewares.AuthMiddleware())
 	{
 		handlers.RegisterCRUDHandlers[models.User](
 			handlers.HandlerConfig{
@@ -31,14 +38,4 @@ func RegisterRoutes(router *gin.Engine) {
 			},
 		)
 	}
-
-	api.GET("/profile", handlers.GetProfile)
-
-	protected := api.Group("/")
-	protected.Use(middlewares.AuthMiddleware())
-	{
-
-	}
-
-	// TODO: Protected
 }

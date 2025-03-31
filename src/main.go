@@ -32,7 +32,7 @@ func main() {
 
 	router := gin.New()
 	router.Use(gin.Logger())
-	router.Use(gin.Recovery())
+	// router.Use(gin.Recovery())
 	router.SetTrustedProxies(nil)
 
 	corsConfig := cors.DefaultConfig()

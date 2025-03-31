@@ -15,8 +15,8 @@ import { LoginPage } from './components/LoginPage/LoginPage';
 import { AppLayout } from './components/Layout/AppLayout';
 import { useAuth } from './contexts/AuthContext';
 import { DashboardPage } from './components/DashboardPage/DashboardPage';
-import { ProfilePage } from './components/ProfilePage/ProfilePage';
 import { LogoutPage } from './components/LogoutPage/LogoutPage';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const ProtectedRoute = ({ children }: { children: any }) => {
   const authState = useAuth();
@@ -46,29 +46,32 @@ export default function App() {
   return (
     <MantineProvider defaultColorScheme="auto">
       <AuthProvider>
-        <Router>
-          <Routes>
-            {/* Auth Routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/logout" element={<LogoutPage />} />
-
-            {/* App Layout Wrapper */}
-            <Route element={<AppLayout />}>
-              <Route path="/" element={
+        <GoogleOAuthProvider clientId="848998314068-729clbjp5ctcvsi65vc34vqmka1iss6q.apps.googleusercontent.com">
+          <Router>
+            <Routes>
+              {/* Auth Routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/logout" element={
                 <ProtectedRoute>
-                  <DashboardPage />
-                </ProtectedRoute>} />
+                  <LogoutPage />
+                </ProtectedRoute>
+              } />
 
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <ProfilePage />
-                </ProtectedRoute>} />
-            </Route>
 
-            {/* Fallback */}
-            <Route path="*" element={<PageNotFound />} />
-          </Routes>
-        </Router>
+              {/* App Layout Wrapper */}
+              <Route element={<AppLayout />}>
+                <Route path="/" element={
+                  <ProtectedRoute>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                } />
+              </Route>
+
+              {/* Fallback */}
+              <Route path="*" element={<PageNotFound />} />
+            </Routes>
+          </Router>
+        </GoogleOAuthProvider>
       </AuthProvider>
     </MantineProvider >
   );

@@ -2,9 +2,7 @@ package middlewares
 
 import (
 	"context"
-	"log"
 	"net/http"
-	"strconv"
 	"strings"
 	"webapp/server/utils"
 
@@ -13,7 +11,6 @@ import (
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		log.Println("test1")
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "authorization header is required"})
@@ -21,7 +18,6 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		log.Println("test2")
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "authorization header format must be Bearer {token}"})
@@ -29,7 +25,6 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		log.Println("test3")
 		claims, err := utils.ValidateJWT(parts[1])
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
@@ -37,16 +32,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		log.Println("test4")
-		userID, err := strconv.ParseUint(claims.UserID, 10, 32)
-		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user_id in token"})
-			ctx.Abort()
-			return
-		}
-
-		log.Println("test5")
-		ctx.Set("userID", userID)
+		ctx.Set("userID", claims.UserID)
 		ctx.Set("email", claims.Email)
 
 		ctx.Next()
