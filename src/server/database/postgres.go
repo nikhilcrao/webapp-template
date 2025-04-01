@@ -27,7 +27,14 @@ func Init() error {
 	glog.Info("Success")
 
 	pgDB = db
-	pgDB.AutoMigrate(&models.User{})
+	pgDB.AutoMigrate(
+		&models.AppUser{},
+		&models.Account{},
+		&models.Category{},
+		&models.Merchant{},
+		&models.Transaction{},
+		&models.Rule{},
+	)
 
 	return nil
 }
