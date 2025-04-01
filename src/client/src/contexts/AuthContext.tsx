@@ -1,62 +1,60 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import {
-    getUserProfile,
-    refreshTokenIfNeeded,
-    logout as apiLogout,
-    loginWithEmailPassword,
     registerUser,
-    loginWithGoogle,
+    loginWithEmail,
+    refreshTokenIfNeeded,
     handleGoogleCallback,
+    logout as apiLogout,
+    getUserProfile,
 } from "../services/auth";
 
-interface AuthState {
-    userData: any,
-    isAuthenticated: boolean,
-    isLoading: boolean,
-    authError: string,
-    registerUser: (name: string, email: string, password: string, confirmPassword: string) => Promise<boolean>,
-    loginWithEmail: (email: string, password: string) => Promise<boolean>,
-    loginWithGoogle: () => Promise<boolean>,
-    processGoogleCallback: (code: any) => Promise<boolean>,
-    logout: () => Promise<void>,
-}
-
-const AuthContext = createContext<AuthState | null>(null);
+const AuthContext = createContext({
+    userData: null,
+    isAuthenticated: false,
+    isLoading: false,
+    handleRegister: (_n: string, _e: string, _p: string, _c: string) => {
+        return Promise.resolve(false);
+    },
+    handleLogin: (_e: string, _p: string) => {
+        return Promise.resolve(false);
+    },
+    handleLogout: () => { },
+    processGoogleCallback: (_code: string) => {
+        return Promise.resolve(false);
+    },
+});
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: any) => {
     const [userData, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [authError, setAuthError] = useState("");
     const isAuthenticated = userData != null;
 
     const setLogin = async (userData: any) => {
         setUser(userData);
-        setAuthError("");
     };
 
-    const clearLogin = async (err: string) => {
+    const clearLogin = async () => {
         setUser(null);
-        setAuthError(err);
     };
 
+    // Initialize the auth state.
     useEffect(() => {
         const initAuth = async () => {
             setIsLoading(true);
 
             try {
-                const isTokenValid = await refreshTokenIfNeeded();
-
-                if (isTokenValid) {
+                const validToken = await refreshTokenIfNeeded();
+                if (validToken) {
                     const userData = await getUserProfile();
                     setLogin(userData);
                 } else {
-                    clearLogin("Please log in to continue.");
+                    clearLogin();
                 }
             } catch (error) {
                 console.error(error);
-                clearLogin("Please log in to continue.");
+                clearLogin();
             } finally {
                 setIsLoading(false);
             }
@@ -65,6 +63,7 @@ export const AuthProvider = ({ children }: any) => {
         initAuth();
     }, []);
 
+    // Refresh the token every 30 mins in the background.
     useEffect(() => {
         if (isAuthenticated) {
             const refreshTimer = setInterval(
@@ -73,40 +72,19 @@ export const AuthProvider = ({ children }: any) => {
                         await refreshTokenIfNeeded();
                     } catch (error) {
                         console.error(error);
-                        clearLogin("Token refresh failed.");
+                        clearLogin();
                     }
                 },
-                30 * 60 * 1000,
+                30 * 60 * 1000,  // 30 mins
             );
 
             return () => clearInterval(refreshTimer);
         }
     }, [isAuthenticated]);
 
-    const logout = async () => {
+    const handleLogin = async (email: string, password: string) => {
         try {
-            await apiLogout();
-        } catch (error) {
-            console.error(error);
-        } finally {
-            clearLogin("");
-        }
-    };
-
-    const startGoogleLogin = async () => {
-        try {
-            const url = await loginWithGoogle();
-            window.location.href = url;
-            return true;
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
-    };
-
-    const processGoogleCallback = async (token: any) => {
-        try {
-            const userData = await handleGoogleCallback(token);
+            const userData = await loginWithEmail(email, password);
             setLogin(userData);
             return true;
         } catch (error) {
@@ -115,18 +93,7 @@ export const AuthProvider = ({ children }: any) => {
         }
     };
 
-    const loginWithEmail = async (email: string, password: string) => {
-        try {
-            const userData = await loginWithEmailPassword(email, password);
-            setLogin(userData);
-            return true;
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
-    };
-
-    const register = async (name: string, email: string, password: string, confirmPassword: string) => {
+    const handleRegister = async (name: string, email: string, password: string, confirmPassword: string) => {
         try {
             if (password != confirmPassword) {
                 throw new Error("Passwords do not match");
@@ -145,21 +112,39 @@ export const AuthProvider = ({ children }: any) => {
         }
     };
 
-    let authState: AuthState = {
-        userData: userData,
-        isAuthenticated: isAuthenticated,
-        isLoading: isLoading,
-        authError: authError,
-        registerUser: register,
-        loginWithEmail: loginWithEmail,
-        loginWithGoogle: startGoogleLogin,
-        processGoogleCallback: processGoogleCallback,
-        logout: logout,
+    const handleLogout = async () => {
+        try {
+            await apiLogout();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            clearLogin();
+        }
+    };
+
+
+    const processGoogleCallback = async (code: any) => {
+        try {
+            const userData = await handleGoogleCallback(code);
+            setLogin(userData);
+            return true;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
     };
 
     return (
-        <AuthContext.Provider value={authState}>
+        <AuthContext.Provider value={{
+            userData,
+            isAuthenticated,
+            isLoading,
+            handleRegister,
+            handleLogin,
+            handleLogout,
+            processGoogleCallback,
+        }}>
             {children}
-        </AuthContext.Provider>
+        </AuthContext.Provider >
     );
 }

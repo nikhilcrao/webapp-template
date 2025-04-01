@@ -8,7 +8,7 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
-import { Loader, MantineProvider } from '@mantine/core';
+import { Center, Loader, MantineProvider } from '@mantine/core';
 import { AuthProvider } from './contexts/AuthContext';
 import { PageNotFound } from './components/PageNotFound/PageNotFound';
 import { LoginPage } from './components/LoginPage/LoginPage';
@@ -19,21 +19,17 @@ import { LogoutPage } from './components/LogoutPage/LogoutPage';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const ProtectedRoute = ({ children }: { children: any }) => {
-  const authState = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
 
-  console.log("protected");
-
-  if (authState?.isLoading) {
-    console.log("loading");
+  if (isLoading) {
     return (
-      <Loader />
+      <Center>
+        <Loader />
+      </Center>
     );
   }
 
-  console.log("authState", authState);
-
-  if (authState?.isAuthenticated) {
-    console.log("authenticated");
+  if (isAuthenticated) {
     return children;
   }
 

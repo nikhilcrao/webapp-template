@@ -12,17 +12,15 @@ import {
   TextInput,
 } from '@mantine/core';
 import { useForm } from "@mantine/form";
-import { upperFirst, useToggle } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { useGoogleLogin } from '@react-oauth/google';
+import { upperFirst, useToggle } from "@mantine/hooks";
 import { GoogleButton } from "./GoogleButton";
-
+import { useGoogleLogin } from '@react-oauth/google';
 
 export function AuthenticationForm(props: PaperProps) {
   const navigate = useNavigate();
-  const authState = useAuth();
-
+  const { isAuthenticated, isLoading, handleRegister, handleLogin, processGoogleCallback } = useAuth();
   const [type, toggle] = useToggle(['Login', 'Register']);
   const form = useForm({
     initialValues: {
@@ -38,48 +36,25 @@ export function AuthenticationForm(props: PaperProps) {
     },
   });
 
-  /*
-  const queryParams = new URLSearchParams(location.search);
-  const code = queryParams.get("code");
-  */
-
-  if (authState?.isAuthenticated && !authState?.isLoading) {
+  // Redirect to homepage if the user is authenticated.
+  if (isAuthenticated && !isLoading) {
     navigate("/");
+    return;
   }
-
-  /*
-  useEffect(() => {
-    if (code) {
-      const processCallback = async () => {
-        try {
-          const success = await authState?.processGoogleCallback(code);
-          if (success) {
-            navigate("/");
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
-      processCallback();
-    }
-  }, [code, authState?.processGoogleCallback, navigate]);
-  */
-
 
   const handleFormSubmit = async (data: any) => {
     try {
       if (type.toString() === 'Register') {
         if (data.password != data.confirm_password) {
+          // TODO: use notifications to highlight this to the user.
           console.error("passwords do not match");
-          return;
         }
-        const success = await authState?.registerUser(data.name, data.email, data.password, data.confirm_password);
+        const success = await handleRegister(data.name, data.email, data.password, data.confirm_password);
         if (success) {
           navigate("/");
         }
       } else {
-        const success = await authState?.loginWithEmail(data.email, data.password);
+        const success = await handleLogin(data.email, data.password);
         if (success) {
           navigate("/");
         }
@@ -89,19 +64,9 @@ export function AuthenticationForm(props: PaperProps) {
     }
   };
 
-  /*
-  const handleGoogleLoginOld = async () => {
-    try {
-      await authState?.loginWithGoogle();
-    } catch (error) {
-      console.error(error);
-    }
-  }
-    */
-
   const googleLogin = useGoogleLogin({
     onSuccess: codeResponse => {
-      authState?.processGoogleCallback(codeResponse.code);
+      processGoogleCallback(codeResponse.code);
     },
     flow: 'auth-code',
     ux_mode: 'popup',
@@ -149,22 +114,22 @@ export function AuthenticationForm(props: PaperProps) {
           />
 
           {type === 'Register' && (
-            <PasswordInput
-              required
-              label="Confirm Password"
-              value={form.values.confirm_password}
-              onChange={(event) => form.setFieldValue('confirm_password', event.currentTarget.value)}
-              error={form.errors.password && 'Passwords must match'}
-              radius="md"
-            />
-          )}
+            <>
+              <PasswordInput
+                required
+                label="Confirm Password"
+                value={form.values.confirm_password}
+                onChange={(event) => form.setFieldValue('confirm_password', event.currentTarget.value)}
+                error={form.errors.password && 'Passwords must match'}
+                radius="md"
+              />
 
-          {type === 'Register' && (
-            <Checkbox
-              label="I accept terms and conditions"
-              checked={form.values.terms}
-              onChange={(event) => form.setFieldValue('terms', event.currentTarget.checked)}
-            />
+              <Checkbox
+                label="I accept terms and conditions"
+                checked={form.values.terms}
+                onChange={(event) => form.setFieldValue('terms', event.currentTarget.checked)}
+              />
+            </>
           )}
         </Stack>
 

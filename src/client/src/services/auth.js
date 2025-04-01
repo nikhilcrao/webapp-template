@@ -1,6 +1,6 @@
 import api from './api';
 
-export async function loginWithEmailPassword(email, password) {
+export async function loginWithEmail(email, password) {
     try {
         const response = await api.post("/auth/login", { email, password });
         if (response.data.token) {
@@ -26,16 +26,6 @@ export async function registerUser(userData) {
     }
 }
 
-export async function loginWithGoogle() {
-    try {
-        const response = await api.get("/auth/google");
-        return response.data.url;
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }
-}
-
 export async function handleGoogleCallback(code) {
     try {
         const response = await api.get(`/auth/google/callback?code=${code}`);
@@ -44,16 +34,6 @@ export async function handleGoogleCallback(code) {
             localStorage.setItem("token", response.data.token);
         }
 
-        return response.data;
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }
-}
-
-export async function getUserProfile() {
-    try {
-        const response = await api.get("/profile");
         return response.data;
     } catch (error) {
         console.error(error);
@@ -72,6 +52,16 @@ export async function logout() {
         // TODO: this function needs to call a logout endpoint on the server to invalidate the token on the server.
         localStorage.removeItem("token");
         return Promise.resolve();
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+// TODO: Move this into a different service (profile.js)
+export async function getUserProfile() {
+    try {
+        return await api.get("/profile");
     } catch (error) {
         console.error(error);
         throw error;
