@@ -39,7 +39,6 @@ export function AuthenticationForm(props: PaperProps) {
   // Redirect to homepage if the user is authenticated.
   if (isAuthenticated && !isLoading) {
     navigate("/");
-    return;
   }
 
   const handleFormSubmit = async (data: any) => {
