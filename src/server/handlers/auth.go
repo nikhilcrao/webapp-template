@@ -30,17 +30,11 @@ type GoogleUserInfo struct {
 
 func googleOAuthConfig() *oauth2.Config {
 	cfg := config.LoadConfig()
-	//	callbackURL := cfg.OAuthCallbackURL
 	return &oauth2.Config{
 		ClientID:     cfg.GoogleClientID,
 		ClientSecret: cfg.GoogleClientSecret,
-		//		RedirectURL:  callbackURL,
-		//		Scopes: []string{
-		//			"https://www.googleapis.com/auth/userinfo.email",
-		//			"https://www.googleapis.com/auth/userinfo.profile",
-		//		},
-		Endpoint:    google.Endpoint,
-		RedirectURL: "postmessage",
+		Endpoint:     google.Endpoint,
+		RedirectURL:  "postmessage",
 	}
 }
 
@@ -92,7 +86,7 @@ func GoogleCallback(ctx *gin.Context) {
 
 	db := database.GetDB()
 
-	var user models.User
+	var user models.AppUser
 	result := db.Where("google_id = ?", userInfo.ID).First(&user)
 
 	user.GoogleID = userInfo.ID
@@ -192,7 +186,7 @@ func Register(ctx *gin.Context) {
 	}
 
 	db := database.GetDB()
-	result := db.Where("email = ?", registerRequest.Email).First(&models.User{})
+	result := db.Where("email = ?", registerRequest.Email).First(&models.AppUser{})
 
 	if ok, status := shouldRegister(result); !ok {
 		err := errors.New("user already registered")
@@ -208,7 +202,7 @@ func Register(ctx *gin.Context) {
 		return
 	}
 
-	user := models.User{
+	user := models.AppUser{
 		Name:         registerRequest.Name,
 		Email:        registerRequest.Email,
 		PasswordHash: passwordHash,
@@ -252,7 +246,7 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	var user models.User
+	var user models.AppUser
 	db := database.GetDB()
 	result := db.Where("email = ?", loginRequest.Email).First(&user)
 
@@ -300,7 +294,7 @@ func GetProfile(ctx *gin.Context) {
 		return
 	}
 
-	var user models.User
+	var user models.AppUser
 	db := database.GetDB()
 	result := db.First(&user, userID)
 
