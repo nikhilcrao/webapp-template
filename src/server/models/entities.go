@@ -9,8 +9,7 @@ import (
 type Account struct {
 	gorm.Model
 
-	AppUserID    uint          `json:"user_id,omitempty"`
-	AppUser      *AppUser      `json:"app_user,omitempty" gorm:"foreignKey:AppUserID"`
+	UserID       uint          `json:"user_id,omitempty"`
 	Name         string        `json:"name,omitempty"`
 	Transactions []Transaction `json:"transactions,omitempty" gorm:"serializer:json"`
 }
@@ -18,11 +17,9 @@ type Account struct {
 type Category struct {
 	gorm.Model
 
-	AppUserID uint `json:"user_id,omitempty"`
-	//	AppUser         AppUser          `json:"app_user,omitempty"`
-	Name     string `json:"name,omitempty"`
-	ParentID *uint  `json:"parent_id,omitempty"`
-	//	Parent       *Category     `json:"parent,omitempty"`
+	UserID       uint          `json:"user_id,omitempty"`
+	Name         string        `json:"name,omitempty"`
+	ParentID     *uint         `json:"parent_id,omitempty" gorm:"default:null"`
 	Transactions []Transaction `json:"transactions,omitempty" gorm:"serializer:json"`
 	Rules        []Rule        `json:"rules,omitempty" gorm:"serializer:json"`
 }
@@ -30,8 +27,7 @@ type Category struct {
 type Merchant struct {
 	gorm.Model
 
-	AppUserID uint `json:"user_id,omitempty"`
-	//	AppUser         AppUser          `json:"app_user,omitempty"`
+	UserID       uint          `json:"user_id,omitempty"`
 	Name         string        `json:"name,omitempty"`
 	Transactions []Transaction `json:"transactions,omitempty" gorm:"serializer:json"`
 	Rules        []Rule        `json:"rules,omitempty" gorm:"serializer:json"`
@@ -40,29 +36,22 @@ type Merchant struct {
 type Transaction struct {
 	gorm.Model
 
-	AppUserID uint `json:"user_id,omitempty"`
-	//	AppUser        AppUser      `json:"app_user,omitempty"`
-	AccountID uint `json:"account_id,omitempty"`
-	//	Account     Account   `json:"account,omitempty"`
+	UserID      uint      `json:"user_id,omitempty"`
+	AccountID   *uint     `json:"account_id,omitempty" gorm:"default:null"`
 	Date        time.Time `json:"date,omitempty"`
 	Description string    `json:"description,omitempty"`
 	Amount      float64   `json:"amount,omitempty"`
-	CategoryID  uint      `json:"category_id,omitempty"`
-	//	Category    Category  `json:"category,omitempty"`
-	MerchantID uint `json:"merchant_id,omitempty"`
-	//	Merchant    Merchant  `json:"merchant,omitempty"`
-	Notes string `json:"notes,omitempty"`
+	CategoryID  *uint     `json:"category_id,omitempty" gorm:"default:null"`
+	MerchantID  *uint     `json:"merchant_id,omitempty" gorm:"default:null"`
+	Notes       *string   `json:"notes,omitempty"`
 }
 
 type Rule struct {
 	gorm.Model
 
-	AppUserID uint `json:"user_id,omitempty"`
-	//	AppUser       AppUser   `json:"app_user,omitempty"`
-	Enabled    bool   `json:"enabled,omitempty"`
+	UserID     uint   `json:"user_id,omitempty"`
+	Enabled    bool   `json:"enabled,omitempty" gorm:"default:false"`
 	Pattern    string `json:"pattern,omitempty"`
-	CategoryID uint   `json:"category_id,omitempty"`
-	//	Category   Category `json:"category,omitempty"`
-	MerchantID uint `json:"merchant_id,omitempty"`
-	// Merchant   Merchant `json:"merchant,omitempty"`
+	CategoryID *uint  `json:"category_id,omitempty" gorm:"default:null"`
+	MerchantID *uint  `json:"merchant_id,omitempty" gorm:"default:null"`
 }

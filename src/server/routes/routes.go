@@ -2,7 +2,6 @@ package routes
 
 import (
 	"webapp/server/handlers"
-	"webapp/server/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,57 +24,17 @@ func RegisterRoutes(router *gin.Engine) {
 	{
 		protected.GET("/profile", handlers.GetProfile)
 
-		handlers.RegisterCRUDHandlers[models.Account](
-			handlers.HandlerConfig{
-				BasePath:    "/accounts",
-				RouterGroup: protected,
-				UserScoped:  true,
-			},
-		)
-
-		handlers.RegisterCRUDHandlers[models.Category](
-			handlers.HandlerConfig{
-				BasePath:    "/categories",
-				RouterGroup: protected,
-				UserScoped:  true,
-			},
-		)
-
-		handlers.RegisterCRUDHandlers[models.Merchant](
-			handlers.HandlerConfig{
-				BasePath:    "/merchants",
-				RouterGroup: protected,
-				UserScoped:  true,
-			},
-		)
-
-		handlers.RegisterCRUDHandlers[models.Transaction](
-			handlers.HandlerConfig{
-				BasePath:    "/transactions",
-				RouterGroup: protected,
-				UserScoped:  true,
-			},
-		)
-
-		handlers.RegisterCRUDHandlers[models.Rule](
-			handlers.HandlerConfig{
-				BasePath:    "/rules",
-				RouterGroup: protected,
-				UserScoped:  true,
-			},
-		)
+		handlers.RegisterHandlers("/accounts", protected, handlers.AccountHandler{})
+		handlers.RegisterHandlers("/categories", protected, handlers.CategoryHandler{})
+		handlers.RegisterHandlers("/merchants", protected, handlers.MerchantHandler{})
+		handlers.RegisterHandlers("/transactions", protected, handlers.TransactionHandler{})
+		handlers.RegisterHandlers("/rules", protected, handlers.RuleHandler{})
 	}
 
 	admin := api.Group("/admin")
 	// Disabled for testing
 	// admin.Use(middlewares.AuthMiddleware())
 	{
-		handlers.RegisterCRUDHandlers[models.AppUser](
-			handlers.HandlerConfig{
-				BasePath:    "/users",
-				RouterGroup: admin,
-				UserScoped:  false,
-			},
-		)
+		handlers.RegisterHandlers("/users", admin, handlers.UserHandler{})
 	}
 }

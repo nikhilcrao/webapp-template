@@ -14,6 +14,23 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+func getObjectID(ctx *gin.Context) (uint, error) {
+	id64, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	if err != nil {
+		glog.Error(err)
+		return 0, err
+	}
+	return uint(id64), nil
+}
+
+func getUserID(ctx *gin.Context) (uint, error) {
+	userID, exists := middlewares.GetUserIdFromContext(ctx)
+	if !exists {
+		return 0, errors.New("UserID not found")
+	}
+	return userID, nil
+}
+
 func getHttpStatusCode(err error) int {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return http.StatusNotFound
@@ -22,44 +39,61 @@ func getHttpStatusCode(err error) int {
 	}
 }
 
-type HandlerConfig struct {
-	BasePath    string
-	RouterGroup *gin.RouterGroup
-	UserScoped  bool
+type Handler[T any] interface {
+	Create(ctx *gin.Context)
+	Get(ctx *gin.Context)
+	GetAll(ctx *gin.Context)
+	Update(ctx *gin.Context)
+	Delete(ctx *gin.Context)
+	DeleteAll(ctx *gin.Context)
 
-	CreateFunc    gin.HandlerFunc
-	GetFunc       gin.HandlerFunc
-	GetAllFunc    gin.HandlerFunc
-	UpdateFunc    gin.HandlerFunc
-	DeleteFunc    gin.HandlerFunc
-	DeleteAllFunc gin.HandlerFunc
+	Validate(*T) error
+	GetQueryBuilder(uint) *gorm.DB
+	QueryUserScoped() bool
+	QueryPreloadAssociations() bool
 }
 
-func getHandler(override, fallback gin.HandlerFunc, userScoped bool) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		ctx.Set("userScoped", userScoped)
-		if override != nil {
-			override(ctx)
-		} else {
-			fallback(ctx)
-		}
-	}
-}
+func RegisterHandlers[T any](basePath string, group *gin.RouterGroup, handler Handler[T]) {
+	group.GET(basePath, handler.GetAll)
+	group.POST(basePath, handler.Create)
+	group.DELETE(basePath, handler.DeleteAll)
 
-func RegisterCRUDHandlers[T any](cfg HandlerConfig) {
-	basePath := cfg.BasePath
 	idPath := fmt.Sprintf("%s/:id", basePath)
-
-	cfg.RouterGroup.POST(basePath, getHandler(cfg.CreateFunc, handleCreate[T], cfg.UserScoped))
-	cfg.RouterGroup.GET(basePath, getHandler(cfg.GetAllFunc, handleGetAll[T], cfg.UserScoped))
-	cfg.RouterGroup.DELETE(basePath, getHandler(cfg.DeleteAllFunc, handleDeleteAll[T], cfg.UserScoped))
-
-	cfg.RouterGroup.GET(idPath, getHandler(cfg.GetFunc, handleGet[T], cfg.UserScoped))
-	cfg.RouterGroup.PUT(idPath, getHandler(cfg.UpdateFunc, handleUpdate[T], cfg.UserScoped))
-	cfg.RouterGroup.DELETE(idPath, getHandler(cfg.DeleteFunc, handleDelete[T], cfg.UserScoped))
+	group.GET(idPath, handler.Get)
+	group.PUT(idPath, handler.Update)
+	group.DELETE(idPath, handler.Delete)
 }
 
-func handleCreate[T any](ctx *gin.Context) {
+// BaseHandler implements Handler interface with the base implementation.
+//
+// Models may provide a separate implementation or provide overrides as needed.
+type BaseHandler[T any] struct {
+}
+
+func (h BaseHandler[T]) QueryPreloadAssociations() bool {
+	return true
+}
+
+func (h BaseHandler[T]) QueryUserScoped() bool {
+	return true
+}
+
+func (h BaseHandler[T]) Validate(object *T) error {
+	return nil
+}
+
+func (h BaseHandler[T]) GetQueryBuilder(userID uint) *gorm.DB {
+	var object T
+	db := database.GetDB().Model(&object).Debug()
+	if h.QueryUserScoped() && userID != 0 {
+		db = db.Where("user_id = ?", userID)
+	} else {
+		db = db.Where("1 = 1")
+	}
+	return db
+}
+
+func (h BaseHandler[T]) Create(ctx *gin.Context) {
 	var object T
 
 	err := ctx.BindJSON(&object)
@@ -69,79 +103,71 @@ func handleCreate[T any](ctx *gin.Context) {
 		return
 	}
 
-	db := database.GetDB()
-	result := db.Create(&object)
-	if result.Error != nil {
-		glog.Error(result.Error)
-		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-		return
-	}
-
-	ctx.IndentedJSON(http.StatusOK, object)
-}
-
-func getQueryBuilder[T any](ctx *gin.Context) *gorm.DB {
-	db := database.GetDB()
-
-	var object T
-	builder := db.Model(&object).Debug()
-
-	userScoped, exists := ctx.Get("userScoped")
-	if !exists {
-		glog.Warning("userScoped context not set")
-		userScoped = false
-	}
-
-	userID, exists := middlewares.GetUserIdFromContext(ctx)
-	if !exists {
-		glog.Warning("userID not in context")
-		userScoped = false
-	}
-
-	if userScoped == true {
-		builder = builder.Where("user = ?", userID)
-	} else {
-		builder = builder.Where("1 = 1")
-	}
-
-	return builder
-}
-
-func handleGet[T any](ctx *gin.Context) {
-	var object T
-
-	idStr := ctx.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
-	if err != nil {
+	if err := h.Validate(&object); err != nil {
 		glog.Error(err)
-		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
-	result := getQueryBuilder[T](ctx).Preload(clause.Associations).First(&object, id)
-	if result.Error != nil {
-		glog.Error(result.Error)
-		ctx.IndentedJSON(getHttpStatusCode(result.Error), gin.H{"error": result.Error.Error()})
+	db := h.GetQueryBuilder(0)
+	if err := db.Create(&object).Error; err != nil {
+		glog.Error(err)
+		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	ctx.IndentedJSON(http.StatusOK, object)
 }
 
-func handleGetAll[T any](ctx *gin.Context) {
+func (h BaseHandler[T]) GetAll(ctx *gin.Context) {
 	var objects []T
 
-	result := getQueryBuilder[T](ctx).Preload(clause.Associations).Find(&objects)
-	if result.Error != nil {
-		glog.Error(result.Error)
-		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	userID, err := getUserID(ctx)
+	if err != nil {
+		glog.Warning(err)
+	}
+
+	db := h.GetQueryBuilder(userID)
+	err = db.Find(&objects).Error
+	if err != nil {
+		glog.Error(err)
+		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	ctx.IndentedJSON(http.StatusOK, objects)
 }
 
-func handleUpdate[T any](ctx *gin.Context) {
+func (h BaseHandler[T]) Get(ctx *gin.Context) {
+	var object T
+
+	objectID, err := getObjectID(ctx)
+	if err != nil {
+		glog.Error(err)
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, err := getUserID(ctx)
+	if err != nil {
+		glog.Warning(err)
+	}
+
+	db := h.GetQueryBuilder(userID)
+	if h.QueryPreloadAssociations() {
+		db = db.Preload(clause.Associations)
+	}
+
+	if err = db.First(&object, objectID).Error; err != nil {
+		glog.Error(err)
+		ctx.IndentedJSON(getHttpStatusCode(err), gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, object)
+}
+
+func (h BaseHandler[T]) Update(ctx *gin.Context) {
 	var object T
 
 	err := ctx.BindJSON(&object)
@@ -151,47 +177,60 @@ func handleUpdate[T any](ctx *gin.Context) {
 		return
 	}
 
-	db := database.GetDB()
-	result := db.Save(&object)
-	if result.Error != nil {
-		glog.Error(result.Error)
-		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	userID, err := getUserID(ctx)
+	if err != nil {
+		glog.Warning(err)
+	}
+
+	db := h.GetQueryBuilder(userID)
+	if err := db.Save(&object).Error; err != nil {
+		glog.Error(err)
+		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	ctx.IndentedJSON(http.StatusOK, object)
 }
 
-func handleDelete[T any](ctx *gin.Context) {
+func (h BaseHandler[T]) Delete(ctx *gin.Context) {
 	var object T
 
-	idStr := ctx.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	objectID, err := getObjectID(ctx)
 	if err != nil {
 		glog.Error(err)
 		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	glog.Error(idStr)
+	userID, err := getUserID(ctx)
+	if err != nil {
+		glog.Warning(err)
+	}
 
-	result := getQueryBuilder[T](ctx).Delete(&object, id)
-	if result.Error != nil {
-		glog.Error(result.Error)
-		ctx.IndentedJSON(getHttpStatusCode(result.Error), gin.H{"error": result.Error.Error()})
+	db := h.GetQueryBuilder(userID)
+	result := db.Delete(&object, objectID)
+	if err := result.Error; err != nil {
+		glog.Error(err)
+		ctx.IndentedJSON(getHttpStatusCode(err), gin.H{"error": err.Error()})
 		return
 	}
 
 	ctx.IndentedJSON(http.StatusOK, gin.H{"rows_affected": result.RowsAffected})
 }
 
-func handleDeleteAll[T any](ctx *gin.Context) {
+func (h BaseHandler[T]) DeleteAll(ctx *gin.Context) {
 	var object T
 
-	result := getQueryBuilder[T](ctx).Delete(&object)
-	if result.Error != nil {
-		glog.Error(result.Error)
-		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	userID, err := getUserID(ctx)
+	if err != nil {
+		glog.Warning(err)
+	}
+
+	db := h.GetQueryBuilder(userID)
+	result := db.Delete(&object)
+	if err := result.Error; err != nil {
+		glog.Error(err)
+		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

@@ -86,7 +86,7 @@ func GoogleCallback(ctx *gin.Context) {
 
 	db := database.GetDB()
 
-	var user models.AppUser
+	var user models.User
 	result := db.Where("google_id = ?", userInfo.ID).First(&user)
 
 	user.GoogleID = userInfo.ID
@@ -186,7 +186,7 @@ func Register(ctx *gin.Context) {
 	}
 
 	db := database.GetDB()
-	result := db.Where("email = ?", registerRequest.Email).First(&models.AppUser{})
+	result := db.Where("email = ?", registerRequest.Email).First(&models.User{})
 
 	if ok, status := shouldRegister(result); !ok {
 		err := errors.New("user already registered")
@@ -202,7 +202,7 @@ func Register(ctx *gin.Context) {
 		return
 	}
 
-	user := models.AppUser{
+	user := models.User{
 		Name:         registerRequest.Name,
 		Email:        registerRequest.Email,
 		PasswordHash: passwordHash,
@@ -246,7 +246,7 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	var user models.AppUser
+	var user models.User
 	db := database.GetDB()
 	result := db.Where("email = ?", loginRequest.Email).First(&user)
 
@@ -294,7 +294,7 @@ func GetProfile(ctx *gin.Context) {
 		return
 	}
 
-	var user models.AppUser
+	var user models.User
 	db := database.GetDB()
 	result := db.First(&user, userID)
 

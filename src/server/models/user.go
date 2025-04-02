@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type AppUser struct {
+type User struct {
 	gorm.Model
 
 	Name         string `json:"name"`
@@ -12,9 +12,11 @@ type AppUser struct {
 	PasswordHash string `json:"-"` // Never expose password hash
 	GoogleID     string `json:"google_id,omitempty"`
 
-	Accounts     []Account     `json:"accounts,omitempty"`
-	Categories   []Category    `json:"categories,omitempty"`
-	Merchants    []Merchant    `json:"merchants,omitempty"`
-	Transactions []Transaction `json:"transactions,omitempty"`
-	Rules        []Rule        `json:"rules,omitempty"`
+	Accounts []Account `json:"accounts,omitempty"`
+	/*
+		Categories   []Category    `json:"categories,omitempty"`
+		Merchants    []Merchant    `json:"merchants,omitempty"`
+		Transactions []Transaction `json:"transactions,omitempty"`
+		Rules        []Rule        `json:"rules,omitempty"`
+	*/
 }

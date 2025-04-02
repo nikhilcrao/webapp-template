@@ -8,12 +8,12 @@ import (
 )
 
 func HandleHealth(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{
+	ctx.IndentedJSON(http.StatusOK, gin.H{
 		"message":   "ok",
 		"timestamp": time.Now(),
 	})
 }
 
 func HandleNotImplemented(ctx *gin.Context) {
-	ctx.JSON(http.StatusNotImplemented, gin.H{})
+	ctx.IndentedJSON(http.StatusNotImplemented, gin.H{})
 }

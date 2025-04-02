@@ -28,12 +28,14 @@ func Init() error {
 
 	pgDB = db
 	pgDB.AutoMigrate(
-		&models.AppUser{},
+		&models.User{},
 		&models.Account{},
-		&models.Category{},
-		&models.Merchant{},
-		&models.Transaction{},
-		&models.Rule{},
+		/*
+			&models.Category{},
+			&models.Merchant{},
+			&models.Transaction{},
+			&models.Rule{},
+		*/
 	)
 
 	return nil
