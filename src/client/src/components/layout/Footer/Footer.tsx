@@ -1,6 +1,6 @@
 import { Anchor, Container, Group } from '@mantine/core';
 import classes from './Footer.module.css';
-import { Brand } from '../Brand/Brand';
+import { Brand } from '../Header/Brand';
 
 const links = [
   { link: '#', label: 'Contact' },
@@ -25,7 +25,7 @@ export function Footer() {
   return (
     <div className={classes.footer}>
       <Container className={classes.inner}>
-        <Brand brandName="Webapp Template" />
+        <Brand />
         <Group className={classes.links}>{items}</Group>
       </Container>
     </div>

@@ -1,6 +1,6 @@
 import { AppShell } from '@mantine/core';
-import { AuthenticationForm } from "../Auth/AuthenticationForm";
-import { Header } from '../Header/Header';
+import { AuthenticationForm } from "../../components/auth/AuthForm/AuthForm";
+import { Header } from '../../components/layout/Header/Header';
 
 export function LoginPage() {
     return (

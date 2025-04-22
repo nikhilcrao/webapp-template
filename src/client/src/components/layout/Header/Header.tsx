@@ -1,5 +1,5 @@
 import { Burger, Container } from '@mantine/core';
-import { Brand } from '../Brand/Brand';
+import { Brand } from './Brand';
 import classes from './Header.module.css';
 
 export interface HeaderProps {
@@ -12,7 +12,7 @@ export function Header(props: HeaderProps) {
     <header className={classes.header}>
       <Container fluid>
         <div className={classes.inner}>
-          <Brand brandName='Webapp Template' />
+          <Brand />
           {props.toggle ? <Burger opened={props.opened} onClick={props.toggle} size="sm" hiddenFrom="md" /> : null}
         </div>
       </Container>

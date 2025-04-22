@@ -1,13 +1,13 @@
 import { IconWallet } from '@tabler/icons-react';
 import { Anchor, Group } from '@mantine/core';
 
-export function Brand({ brandName: brand }: { brandName: string }) {
+export function Brand() {
     return (
         <Anchor href="/">
             <Group>
                 <IconWallet />
                 <span style={{ fontVariant: 'small-caps' }}>
-                    <strong>{brand}</strong>
+                    <strong>Budget Buddy</strong>
                 </span>
             </Group >
         </Anchor>

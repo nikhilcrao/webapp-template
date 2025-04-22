@@ -1,8 +1,10 @@
 import {
   IconAdjustments,
-  IconGauge,
-  IconNotes,
-  IconPresentationAnalytics,
+  IconAutomation,
+  IconCategory,
+  IconDashboard,
+  IconFileImport,
+  IconShoppingBag,
 } from '@tabler/icons-react';
 
 import { IconLogout } from '@tabler/icons-react';
@@ -10,15 +12,9 @@ import { ScrollArea, Anchor } from '@mantine/core';
 import { LinksGroup } from './LinksGroup';
 import classes from './Navbar.module.css';
 
-export const navItems = {
-  items: [
-    {
-      label: "Dashboard",
-      icon: IconGauge,
-      link: "/",
-    },
-    {
-      label: "Forecasts",
+/*
+{
+      label: "Transactions",
       icon: IconNotes,
       link: "/forecasts",
       linksGroup: [
@@ -28,13 +24,33 @@ export const navItems = {
         { label: "Real time", link: "/forecasts/real-time" },
       ],
     },
+*/
+export const navItems = {
+  items: [
     {
-      label: "Analytics",
-      icon: IconPresentationAnalytics,
-      link: "/analytics",
-      linksGroup: [
-        { label: "Reports", link: "/analytics/reports" },
-      ],
+      label: "Dashboard",
+      icon: IconDashboard,
+      link: "/",
+    },
+    {
+      label: "Import",
+      icon: IconFileImport,
+      link: "/transactions/import",
+    },
+    {
+      label: "Automation",
+      icon: IconAutomation,
+      link: "/rules",
+    },
+    {
+      label: "Categories",
+      icon: IconCategory,
+      link: "/categories",
+    },
+    {
+      label: "Merchants",
+      icon: IconShoppingBag,
+      link: "/merchants",
     },
     {
       label: "Settings",

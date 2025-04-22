@@ -1,7 +1,6 @@
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/charts/styles.css';
-
 import {
   BrowserRouter as Router,
   Routes,
@@ -9,18 +8,17 @@ import {
   Navigate,
 } from 'react-router-dom';
 import { Center, Loader, MantineProvider } from '@mantine/core';
+import { AppLayout } from './components/layout/AppLayout/AppLayout';
 import { AuthProvider } from './contexts/AuthContext';
-import { PageNotFound } from './components/PageNotFound/PageNotFound';
-import { LoginPage } from './components/LoginPage/LoginPage';
-import { AppLayout } from './components/Layout/AppLayout';
+import { LoginPage } from './pages/Login/Login';
 import { useAuth } from './contexts/AuthContext';
-import { DashboardPage } from './components/DashboardPage/DashboardPage';
-import { LogoutPage } from './components/LogoutPage/LogoutPage';
+import { LogoutPage } from './pages/Logout/Logout';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { Dashboard } from './pages/Dashboard/Dashboard';
+import { PageNotFound } from './pages/PageNotFound/PageNotFound';
 
 const ProtectedRoute = ({ children }: { children: any }) => {
   const { isLoading, isAuthenticated } = useAuth();
-
   if (isLoading) {
     return (
       <Center>
@@ -28,11 +26,9 @@ const ProtectedRoute = ({ children }: { children: any }) => {
       </Center>
     );
   }
-
   if (isAuthenticated) {
     return children;
   }
-
   return (
     <Navigate to="/login" />
   );
@@ -53,13 +49,10 @@ export default function App() {
                 </ProtectedRoute>
               } />
 
-
               {/* App Layout Wrapper */}
               <Route element={<AppLayout />}>
                 <Route path="/" element={
-                  <ProtectedRoute>
-                    <DashboardPage />
-                  </ProtectedRoute>
+                  <Dashboard />
                 } />
               </Route>
 

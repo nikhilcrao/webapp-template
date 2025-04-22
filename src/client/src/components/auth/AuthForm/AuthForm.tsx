@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { useForm } from "@mantine/form";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 import { upperFirst, useToggle } from "@mantine/hooks";
 import { GoogleButton } from "./GoogleButton";
 import { useGoogleLogin } from '@react-oauth/google';
